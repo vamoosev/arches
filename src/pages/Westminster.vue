@@ -82,6 +82,20 @@
 
     diagram.name = event.target.value;
   }
+
+  function deleteDiagram() {
+    if (status.diagrams.length <= 1) {
+      status.diagrams = [createDiagram()];
+      status.selectedDiagramIndex = 0;
+      return;
+    }
+
+    status.diagrams.splice(status.selectedDiagramIndex, 1);
+
+    if (status.selectedDiagramIndex >= status.diagrams.length) {
+      status.selectedDiagramIndex = status.diagrams.length - 1;
+    }
+  }
   
 // TODO: introduce further localStorage models? Perhaps a dark mode toggle.
 </script>
@@ -139,6 +153,12 @@
           @click="addDiagram"
         >
           New Diagram
+        </button>
+        <button
+          class="px-4 py-2 rounded-md bg-red-100 text-red-700 hover:bg-red-300 transition-all focus:ring-4 ring-red-700 ring-opacity-40"
+          @click="deleteDiagram"
+        >
+          Delete Diagram
         </button>
         <label class="text-slate-700 font-semibold ml-4">Name:</label>
         <input
