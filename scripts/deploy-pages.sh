@@ -3,36 +3,32 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-branch="${1:-gh-pages}"
+branch="main"
+deploy_dir_name="docs"
 build_dir="$repo_root/dist"
-worktree_dir="$(mktemp -d)"
-
-cleanup() {
-  git -C "$repo_root" worktree remove --force "$worktree_dir" >/dev/null 2>&1 || true
-  rm -rf "$worktree_dir"
-}
-trap cleanup EXIT
+deploy_dir="$repo_root/$deploy_dir_name"
 
 cd "$repo_root"
 npm run build
 
-if git show-ref --verify --quiet "refs/heads/$branch"; then
-  git worktree add --force "$worktree_dir" "$branch"
-else
-  git worktree add --force "$worktree_dir" --detach
-  git -C "$worktree_dir" switch --orphan "$branch"
+current_branch="$(git branch --show-current)"
+
+if [ "$current_branch" != "$branch" ]; then
+  echo "Checkout '$branch' before deploying."
+  exit 1
 fi
 
-find "$worktree_dir" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
-cp -R "$build_dir"/. "$worktree_dir"/
-touch "$worktree_dir/.nojekyll"
+rm -rf "$deploy_dir"
+mkdir -p "$deploy_dir"
+cp -R "$build_dir"/. "$deploy_dir"/
+touch "$deploy_dir/.nojekyll"
 
-git -C "$worktree_dir" add -A
+git add "$deploy_dir_name"
 
-if git -C "$worktree_dir" diff --cached --quiet; then
+if git diff --cached --quiet; then
   echo "No Pages changes to commit."
 else
-  git -C "$worktree_dir" commit -m "Deploy GitHub Pages"
+  git commit -m "Deploy GitHub Pages"
 fi
 
-git -C "$worktree_dir" push origin "$branch"
+git push origin "$branch"

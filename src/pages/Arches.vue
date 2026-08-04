@@ -121,7 +121,7 @@
         <a
           class="underline text-blue-700"
           target="_blank"
-          href="https://github.com/elexnuk/arches"
+          href="https://github.com/vamoosev/arches"
           >Github</a
         >.
       </div>

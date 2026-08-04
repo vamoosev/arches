@@ -19,8 +19,8 @@ The application is available at [parliament.jamesm2w.me](https://parliament.jame
 This repository is set up for manual deployment rather than GitHub Actions.
 
 1. Build the site on your own computer with `npm run build`
-2. Or run `npm run deploy:pages` to build and push the generated site to the `gh-pages` branch
-3. Configure GitHub Pages to publish from the `gh-pages` branch and `/ (root)` in your repository settings
+2. Or run `npm run deploy:pages` to build and push the generated site into `docs/` on `main`
+3. Configure GitHub Pages to publish from the `main` branch and `/docs` in your repository settings
 
 ## Development
 
