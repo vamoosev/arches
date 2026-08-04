@@ -25,6 +25,7 @@ fi
 
 find "$worktree_dir" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
 cp -R "$build_dir"/. "$worktree_dir"/
+touch "$worktree_dir/.nojekyll"
 
 git -C "$worktree_dir" add -A
 
