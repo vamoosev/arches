@@ -23,6 +23,9 @@ mkdir -p "$deploy_dir"
 cp -R "$build_dir"/. "$deploy_dir"/
 touch "$deploy_dir/.nojekyll"
 
+git config user.name "vamoosev"
+git config user.email "vamoosev@gmail.com"
+
 git add "$deploy_dir_name"
 
 if git diff --cached --quiet; then
