@@ -14,6 +14,14 @@ The application is available at [parliament.jamesm2w.me](https://parliament.jame
 3. Run `npm run build` to build the application into `/dist`
 4. (Optional) Serve locally with `npm run serve`
 
+## Deploy to GitHub Pages
+
+This repository is set up for manual deployment rather than GitHub Actions.
+
+1. Build the site on your own computer with `npm run build`
+2. Push the generated `dist` contents to the branch/folder that GitHub Pages serves
+3. Configure GitHub Pages to publish from that branch/path in your repository settings
+
 ## Development
 
 1. Download source from the github repository
