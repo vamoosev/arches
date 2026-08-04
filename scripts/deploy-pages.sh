@@ -11,7 +11,6 @@ cleanup() {
   git -C "$repo_root" worktree remove --force "$worktree_dir" >/dev/null 2>&1 || true
   rm -rf "$worktree_dir"
 }
-
 trap cleanup EXIT
 
 cd "$repo_root"
