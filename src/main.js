@@ -34,7 +34,7 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHashHistory('/dist/'),
+    history: createWebHashHistory('/arches/'),
     routes
 });
 

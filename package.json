@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "deploy:pages": "bash scripts/deploy-pages.sh"
   },
   "dependencies": {
     "vue": "^3.4.27",
