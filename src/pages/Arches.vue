@@ -1,6 +1,6 @@
 <script setup>
   // Import needed Vue functions
-  import { onMounted, reactive, watch } from "vue";
+  import { computed, onMounted, reactive, watch } from "vue";
   import { RouterLink } from "vue-router"; 
   
   // Import subcomponents 
@@ -9,23 +9,48 @@
   
   // Define a reactive object with the current diagram inside.
   // Vue will watch this object and update the DOM when it is modified
+  function createArch(name = "New Arch") {
+    return {
+      name,
+
+      // List of party representations objects (party + seat counts)
+      list: [],
+
+      // Any diagram options which will be passed to the diagram generator.
+      // Currently only supports a title and denseRows boolean toggle.
+      options: { denseRows: false, diagramTitle: name },
+    };
+  }
+
   var status = reactive({
-    list: [], // List of party representations objects (party + seat counts)
-    
-    // Any diagram options which will be passed to the diagram generator.
-    // Currently only supports a title and denseRows boolean toggle.
-    options: { denseRows: false, diagramTitle: "New Diagram" }, 
+    arches: [createArch()],
+    selectedArchIndex: 0,
+  });
+
+  const activeArch = computed(() => {
+    return status.arches[status.selectedArchIndex] ?? status.arches[0];
   });
   
   // This defines a callback function to be run when the component is mounted onto the DOM
   // This function checks the window's localStorage for a saved state and loads it.
   onMounted(() => {
     
-    if (localStorage.getItem("archDiagram")) {
+    if (localStorage.getItem("archDiagrams")) {
       console.log("load from storage");
+      let storedStatus = JSON.parse(localStorage.getItem("archDiagrams"));
+      status.arches = storedStatus.arches?.length ? storedStatus.arches : [createArch()];
+      status.selectedArchIndex = storedStatus.selectedArchIndex ?? 0;
+    } else if (localStorage.getItem("archDiagram")) {
+      console.log("load from legacy storage");
       let storedStatus = JSON.parse(localStorage.getItem("archDiagram"));
-      status.list = storedStatus.list;
-      status.options = storedStatus.options;
+      status.arches = [
+        {
+          name: storedStatus.options?.diagramTitle || "New Arch",
+          list: storedStatus.list || [],
+          options: storedStatus.options || { denseRows: false, diagramTitle: "New Arch" },
+        },
+      ];
+      status.selectedArchIndex = 0;
     }
   });
   
@@ -35,10 +60,33 @@
   watch(status, (newValue) => {
     console.log("update storage");
     localStorage.setItem(
-      "archDiagram",
-      JSON.stringify({ list: newValue.list, options: newValue.options })
+      "archDiagrams",
+      JSON.stringify({ arches: newValue.arches, selectedArchIndex: newValue.selectedArchIndex })
     );
   });
+
+  function addArch() {
+    status.arches.push(createArch(`New Arch ${status.arches.length + 1}`));
+    status.selectedArchIndex = status.arches.length - 1;
+  }
+
+  function selectArch(event) {
+    status.selectedArchIndex = parseInt(event.target.value);
+  }
+
+  function deleteArch() {
+    if (status.arches.length <= 1) {
+      status.arches = [createArch()];
+      status.selectedArchIndex = 0;
+      return;
+    }
+
+    status.arches.splice(status.selectedArchIndex, 1);
+
+    if (status.selectedArchIndex >= status.arches.length) {
+      status.selectedArchIndex = status.arches.length - 1;
+    }
+  }
   
 // TODO: introduce further localStorage models? Perhaps a dark mode toggle.
 </script>
@@ -80,6 +128,31 @@
     </div>
   
     <div class="flex flex-wrap w-full p-4 items-start">
+      <div class="w-full mb-4 flex flex-wrap items-center gap-3">
+        <label class="text-slate-700 font-semibold">Open arch:</label>
+        <select
+          class="rounded-lg bg-white shadow px-3 py-2 border border-slate-200"
+          :value="status.selectedArchIndex"
+          @change="selectArch"
+        >
+          <option v-for="(arch, index) in status.arches" :key="arch.options.diagramTitle + index" :value="index">
+            {{ arch.options.diagramTitle || arch.name }}
+          </option>
+        </select>
+        <button
+          class="px-4 py-2 rounded-md bg-green-100 text-green-700 hover:bg-green-300 transition-all focus:ring-4 ring-green-700 ring-opacity-40"
+          @click="addArch"
+        >
+          New Arch
+        </button>
+        <button
+          class="px-4 py-2 rounded-md bg-red-100 text-red-700 hover:bg-red-300 transition-all focus:ring-4 ring-red-700 ring-opacity-40"
+          @click="deleteArch"
+        >
+          Delete Arch
+        </button>
+      </div>
+
       <PartyList
         class="
           bg-gray-100
@@ -90,12 +163,12 @@
           mr-4
           divide-y divide-gray-100
         "
-        v-bind="status"
+        v-bind="activeArch"
       ></PartyList>
   
       <ArchDiagram
         class="sm:w-full flex-1 ml-4 md:sticky md:top-0"
-        v-bind="status"
+        v-bind="activeArch"
       ></ArchDiagram>
     </div>
 </template>
